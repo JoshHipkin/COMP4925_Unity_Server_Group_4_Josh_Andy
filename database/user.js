@@ -1,4 +1,4 @@
-const database = require("./dbConnection");
+const database = require("../dbConnection");
 
 async function createUser(username, password) {
   const query = `INSERT INTO unity_users (username, hashed_password) VALUES (?, ?)`;

@@ -49,6 +49,10 @@ try {
 //#endregion SESSION
 
 // Routes
+app.get("/", (req, res) => {
+  res.json({ message: "Server is running" });
+});
+
 app.post("/signup", (req, res) => {
   const { username, password } = req.body;
   const saltRounds = 10;
