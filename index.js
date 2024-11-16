@@ -6,6 +6,8 @@ const bodyParser = require("body-parser");
 const MongoStore = require("connect-mongo");
 const app = express();
 const port = process.env.PORT || 3000;
+const { createUser, getUser, save } = require("./database/user");
+const bcrypt = require("bcrypt");
 //#endregion SETUP
 
 //#region MONGODB
@@ -49,14 +51,68 @@ try {
 // Routes
 app.post("/signup", (req, res) => {
   const { username, password } = req.body;
-  // Add logic to handle user signup
+  const saltRounds = 10;
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}$/;
+
+  if (!passwordRegex.test(password)) {
+    return res
+      .status(400)
+      .send("Password does not meet complexity requirements");
+  }
+
+  bcrypt.hash(password, saltRounds, async (err, hash) => {
+    if (err) {
+      return res.status(500).send("Error hashing password");
+    }
+
+    try {
+      const userId = await createUser(username, hash);
+      if (!userId) {
+        return res.status(500).send("Error creating user");
+      } else {
+        req.session.authenticated = true;
+        req.session.userId = userId;
+        req.session.username = username;
+        req.session.cookie.maxAge = expireTime;
+        return res.send("User signed up");
+      }
+    } catch (error) {
+      res.status(500).send("Error creating user");
+    }
+  });
   res.send("User signed up");
 });
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  // Add logic to handle user login
-  res.send("User logged in");
+  if (!username || !password) {
+    return res.status(400).send("Missing username or password");
+  } else {
+    const user = getUser(username);
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    if (bcrypt.compare(password, user.hashed_password)) {
+      req.session.authenticated = true;
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      req.session.cookie.maxAge = expireTime;
+      return res.send("User logged in");
+    } else {
+      return res.status(401).send("Invalid password");
+    }
+  }
+});
+
+app.post("/save", (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).send("Unauthorized");
+  }
+  const { username, level } = req.body;
+  save(username, level);
+  res.send("User saved");
 });
 
 // Start server
