@@ -8,6 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const { createUser, getUser, save } = require("./database/user");
 const bcrypt = require("bcrypt");
+app.use(express.urlencoded({ extended: false }));
 //#endregion SETUP
 
 //#region MONGODB
@@ -85,7 +86,7 @@ app.post("/signup", (req, res) => {
       res.status(500).send("Error creating user");
     }
   });
-  res.send("User signed up");
+  // res.send("User signed up");
 });
 
 app.post("/login", (req, res) => {
