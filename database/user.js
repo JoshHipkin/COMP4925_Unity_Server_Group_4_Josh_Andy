@@ -4,7 +4,7 @@ async function createUser(username, password) {
   const query = `INSERT INTO user (username, hashed_password) VALUES (?, ?)`;
   try {
     const [result] = await database.query(query, [username, password]);
-    return result;
+    return result.insertId;
   } catch (error) {
     console.error("Error creating user", error);
   }
