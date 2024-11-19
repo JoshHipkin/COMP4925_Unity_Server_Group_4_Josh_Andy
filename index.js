@@ -83,10 +83,9 @@ app.post("/signup", (req, res) => {
         return res.send("User signed up");
       }
     } catch (error) {
-      res.status(500).send("Error creating user");
+      return res.status(500).send("Error creating user");
     }
   });
-  // res.send("User signed up");
 });
 
 app.post("/login", (req, res) => {
