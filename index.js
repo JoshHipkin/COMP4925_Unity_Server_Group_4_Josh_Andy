@@ -88,16 +88,17 @@ app.post("/signup", (req, res) => {
   });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).send("Missing username or password");
   } else {
-    const user = getUser(username);
+    const user = await getUser(username);
 
     if (!user) {
       return res.status(404).send("User not found");
     }
+
     if (bcrypt.compare(password, user.hashed_password)) {
       req.session.authenticated = true;
       req.session.userId = user.id;

@@ -14,7 +14,8 @@ async function getUser(username) {
   const query = `SELECT * FROM user WHERE username = ?`;
   try {
     const [result] = await database.query(query, [username]);
-    return result;
+
+    return result[0];
   } catch (error) {
     console.error("Error getting user", error);
   }
