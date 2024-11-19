@@ -8,6 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const { createUser, getUser, save } = require("./database/user");
 const bcrypt = require("bcrypt");
+app.use(express.urlencoded({ extended: false }));
 //#endregion SETUP
 
 //#region MONGODB
@@ -82,22 +83,22 @@ app.post("/signup", (req, res) => {
         return res.send("User signed up");
       }
     } catch (error) {
-      res.status(500).send("Error creating user");
+      return res.status(500).send("Error creating user");
     }
   });
-  res.send("User signed up");
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).send("Missing username or password");
   } else {
-    const user = getUser(username);
+    const user = await getUser(username);
 
     if (!user) {
       return res.status(404).send("User not found");
     }
+
     if (bcrypt.compare(password, user.hashed_password)) {
       req.session.authenticated = true;
       req.session.userId = user.id;

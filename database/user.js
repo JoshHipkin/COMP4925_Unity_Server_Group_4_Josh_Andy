@@ -1,27 +1,28 @@
 const database = require("../dbConnection");
 
 async function createUser(username, password) {
-  const query = `INSERT INTO unity_users (username, hashed_password) VALUES (?, ?)`;
+  const query = `INSERT INTO user (username, hashed_password) VALUES (?, ?)`;
   try {
     const [result] = await database.query(query, [username, password]);
-    return result;
+    return result.insertId;
   } catch (error) {
     console.error("Error creating user", error);
   }
 }
 
 async function getUser(username) {
-  const query = `SELECT * FROM unity_users WHERE username = ?`;
+  const query = `SELECT * FROM user WHERE username = ?`;
   try {
     const [result] = await database.query(query, [username]);
-    return result;
+
+    return result[0];
   } catch (error) {
     console.error("Error getting user", error);
   }
 }
 
 async function save(username, level) {
-  const query = `UPDATE unity_users SET level = ? WHERE username = ?`;
+  const query = `UPDATE user SET level = ? WHERE username = ?`;
   try {
     const [result] = await database.query(query, [level, username]);
     return result;
