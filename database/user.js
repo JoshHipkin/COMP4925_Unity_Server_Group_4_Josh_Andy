@@ -22,7 +22,7 @@ async function getUser(username) {
 }
 
 async function save(username, level) {
-  const query = `UPDATE user SET level = ? WHERE username = ?`;
+  const query = `UPDATE user SET level = ?, save_score = ? WHERE username = ?`;
   try {
     const [result] = await database.query(query, [level, username]);
     return result;

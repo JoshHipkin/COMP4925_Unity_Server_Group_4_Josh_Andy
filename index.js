@@ -80,7 +80,10 @@ app.post("/signup", (req, res) => {
         req.session.userId = userId;
         req.session.username = username;
         req.session.cookie.maxAge = expireTime;
-        return res.send("User signed up");
+        return res.json({
+          message: "User signed up",
+          user: { id: userId },
+        });
       }
     } catch (error) {
       return res.status(500).send("Error creating user");
@@ -104,7 +107,13 @@ app.post("/login", async (req, res) => {
       req.session.userId = user.id;
       req.session.username = user.username;
       req.session.cookie.maxAge = expireTime;
-      return res.send("User logged in");
+      return res.json({
+        message: "User logged in",
+        user: { id: user.id },
+        level: user.save,
+        score: user.save_score,
+        highScore: user.high_score,
+      });
     } else {
       return res.status(401).send("Invalid password");
     }
@@ -115,8 +124,8 @@ app.post("/save", (req, res) => {
   if (!req.session.authenticated) {
     return res.status(401).send("Unauthorized");
   }
-  const { username, level } = req.body;
-  save(username, level);
+  const { username, level, score } = req.body;
+  save(username, level, score);
   res.send("User saved");
 });
 
