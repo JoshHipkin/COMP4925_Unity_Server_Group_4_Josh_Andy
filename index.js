@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,6 +12,7 @@ const {
   getUser,
   save,
   getLeaderboard,
+  saveHighScore,
 } = require("./database/user");
 const bcrypt = require("bcrypt");
 app.use(express.urlencoded({ extended: false }));
@@ -53,6 +55,8 @@ try {
   console.error("Session error", error);
 }
 //#endregion SESSION
+
+app.use(cors());
 
 // Routes
 app.get("/", (req, res) => {
@@ -134,9 +138,24 @@ app.post("/save", (req, res) => {
   res.send("User saved");
 });
 
+app.post("/highscore", async (req, res) => {
+  const { userId, score } = req.body;
+  try {
+    await saveHighScore(userId, score);
+    res.send("High score saved");
+  } catch (error) {
+    res.status(500).send("Error saving high score");
+  }
+});
+
+app.post("/logout", (req, res) => {
+  req.session.destroy();
+  res.send("User logged out");
+});
+
 app.get("/leaderboard", async (req, res) => {
   try {
-    const [rows] = await getLeaderboard();
+    const rows = await getLeaderboard();
     res.json(rows);
   } catch (error) {
     res.status(500).send("Error getting leaderboard");

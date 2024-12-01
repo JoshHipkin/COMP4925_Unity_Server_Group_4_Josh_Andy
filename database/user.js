@@ -22,7 +22,7 @@ async function getUser(username) {
 }
 
 async function save(username, level) {
-  const query = `UPDATE user SET level = ?, save_score = ? WHERE username = ?`;
+  const query = `UPDATE user SET level = ?, save_score = ? WHERE userId = ?`;
   try {
     const [result] = await database.query(query, [level, username]);
     return result;
@@ -32,13 +32,27 @@ async function save(username, level) {
 }
 
 async function getLeaderboard() {
-  const query = `SELECT username, high_score FROM user ORDER BY high_score DESC`;
+  const query = `SELECT username, high_score FROM user ORDER BY high_score DESC limit 5;`;
   try {
     const [result] = await database.query(query);
+    console.log(result);
     return result;
   } catch (error) {
     console.error("Error getting leaderboard", error);
   }
 }
 
-module.exports = { createUser, getUser, save, getLeaderboard };
+async function saveHighScore(userId, score) {
+  const query = `UPDATE user SET
+    high_score = GREATEST(high_score, ?)
+    WHERE id = ?`;
+
+  try {
+    const [result] = await database.query(query, [score, userId]);
+    return result;
+  } catch (error) {
+    console.error("Error saving high score", error);
+  }
+}
+
+module.exports = { createUser, getUser, save, getLeaderboard, saveHighScore };
