@@ -6,7 +6,12 @@ const bodyParser = require("body-parser");
 const MongoStore = require("connect-mongo");
 const app = express();
 const port = process.env.PORT || 3000;
-const { createUser, getUser, save } = require("./database/user");
+const {
+  createUser,
+  getUser,
+  save,
+  getLeaderboard,
+} = require("./database/user");
 const bcrypt = require("bcrypt");
 app.use(express.urlencoded({ extended: false }));
 //#endregion SETUP
@@ -109,7 +114,7 @@ app.post("/login", async (req, res) => {
       req.session.cookie.maxAge = expireTime;
       return res.json({
         message: "User logged in",
-        user: { id: user.id },
+        user: user.user_id,
         level: user.save,
         score: user.save_score,
         highScore: user.high_score,
@@ -127,6 +132,15 @@ app.post("/save", (req, res) => {
   const { username, level, score } = req.body;
   save(username, level, score);
   res.send("User saved");
+});
+
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const [rows] = await getLeaderboard();
+    res.json(rows);
+  } catch (error) {
+    res.status(500).send("Error getting leaderboard");
+  }
 });
 
 // Start server

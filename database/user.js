@@ -31,4 +31,14 @@ async function save(username, level) {
   }
 }
 
-module.exports = { createUser, getUser, save };
+async function getLeaderboard() {
+  const query = `SELECT username, high_score FROM user ORDER BY high_score DESC`;
+  try {
+    const [result] = await database.query(query);
+    return result;
+  } catch (error) {
+    console.error("Error getting leaderboard", error);
+  }
+}
+
+module.exports = { createUser, getUser, save, getLeaderboard };
