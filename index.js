@@ -106,7 +106,6 @@ app.post("/login", async (req, res) => {
     return res.status(400).send("Missing username or password");
   } else {
     const user = await getUser(username);
-    console.log(user);
 
     if (!user) {
       return res.status(404).send("User not found");
