@@ -106,6 +106,7 @@ app.post("/login", async (req, res) => {
     return res.status(400).send("Missing username or password");
   } else {
     const user = await getUser(username);
+    console.log(user);
 
     if (!user) {
       return res.status(404).send("User not found");
@@ -118,8 +119,8 @@ app.post("/login", async (req, res) => {
       req.session.cookie.maxAge = expireTime;
       return res.json({
         message: "User logged in",
-        user: user.user_id,
-        level: user.save,
+        userId: user.user_id,
+        level: user.level,
         score: user.save_score,
         highScore: user.high_score,
       });
@@ -133,8 +134,9 @@ app.post("/save", (req, res) => {
   if (!req.session.authenticated) {
     return res.status(401).send("Unauthorized");
   }
-  const { username, level, score } = req.body;
-  save(username, level, score);
+  const { level, score, userId } = req.body;
+  console.log(level, score, userId);
+  save(level, score, userId);
   res.send("User saved");
 });
 
